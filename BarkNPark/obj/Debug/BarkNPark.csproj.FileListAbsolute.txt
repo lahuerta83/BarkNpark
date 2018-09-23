@@ -1,0 +1,6 @@
+C:\Users\HelenBelen\Documents\Code\barnkpark-app\BarkNPark\bin\Debug\BarkNPark.exe.config
+C:\Users\HelenBelen\Documents\Code\barnkpark-app\BarkNPark\bin\Debug\BarkNPark.exe
+C:\Users\HelenBelen\Documents\Code\barnkpark-app\BarkNPark\bin\Debug\BarkNPark.pdb
+C:\Users\HelenBelen\Documents\Code\barnkpark-app\BarkNPark\obj\Debug\BarkNPark.csproj.CoreCompileInputs.cache
+C:\Users\HelenBelen\Documents\Code\barnkpark-app\BarkNPark\obj\Debug\BarkNPark.exe
+C:\Users\HelenBelen\Documents\Code\barnkpark-app\BarkNPark\obj\Debug\BarkNPark.pdb
