@@ -4,3 +4,4 @@ C:\Users\HelenBelen\Documents\Code\barnkpark-app\BarkNPark\bin\Debug\BarkNPark.p
 C:\Users\HelenBelen\Documents\Code\barnkpark-app\BarkNPark\obj\Debug\BarkNPark.csproj.CoreCompileInputs.cache
 C:\Users\HelenBelen\Documents\Code\barnkpark-app\BarkNPark\obj\Debug\BarkNPark.exe
 C:\Users\HelenBelen\Documents\Code\barnkpark-app\BarkNPark\obj\Debug\BarkNPark.pdb
+C:\Users\HelenBelen\Documents\Code\barnkpark-app\BarkNPark\obj\Debug\BarkNPark.csprojResolveAssemblyReference.cache
