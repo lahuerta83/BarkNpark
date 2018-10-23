@@ -7,17 +7,24 @@ using System.Threading.Tasks;
 namespace BarkNPark
 {
 
+    public enum TransactionType {
+
+        SALE = 0,
+        REFUND = 1,
+
+    }
+
     public interface IAppointment
 
     {
-        int checkin(StationCode stationCode, DateTime checkin, double duration);
-        int extendTime(double duration);
-        int checkout();
-        bool durationValid(DateTime checkInTime, double duration);
-        int dispenseItem(ItemType[] items);
-        string getName();
-        StationCode getStationCode();
-        DateTime getCheckInTime();
+        int Checkin(IStation station, double duration);
+        int ExtendTime(double duration);
+        int Checkout();
+        int DispenseItem(ItemType[] items);
+        string Name { get; set; }
+        StationCode AppointmentStationCode { get; }
+        string PrintSales();
+        
     }
 
     public class Appointment : IAppointment
@@ -25,36 +32,41 @@ namespace BarkNPark
         System system;
         IStation appointmentStation;
         string appointmentName;
-        DateTime appointmentCheckin;
-        DateTime appointmentCheckout;
+        DateTime appointmentCheckin, scheduledAppointmentCheckout, actualAppointmentCheckout;
         List<ISale> appointmentSales = new List<ISale>();
-        List<ItemType> hoursInStation = new List<ItemType>();
+
         public Appointment(System mySystem, string name, DateTime checkinTime, DateTime checkoutTime)
         {
-            system = mySystem;
-            appointmentName = name;
-            appointmentCheckin = checkinTime;
-            appointmentCheckout = checkoutTime;
+           system = mySystem;
+           appointmentName = name;
+           appointmentCheckin = checkinTime;
+           scheduledAppointmentCheckout = checkoutTime;
+            actualAppointmentCheckout = scheduledAppointmentCheckout;
         }
 
-        public string getName()
+        public string Name
         {
-            return this.appointmentName;
+            get { return this.appointmentName; }
+            set { appointmentName = value; }
         }
-        public StationCode getStationCode()
+
+        public StationCode AppointmentStationCode { get { return appointmentStation.stationCode; }  }
+
+        public DateTime CheckInTime { get { return appointmentCheckin; } set { appointmentCheckin = value; }  }
+
+        public DateTime ScheduledCheckOutTime { get { return scheduledAppointmentCheckout; } set { scheduledAppointmentCheckout = value; } }
+
+        public DateTime ActualCheckoutTime { get { return actualAppointmentCheckout; } set { actualAppointmentCheckout = value; } }
+
+        public int Checkin(IStation station, double duration)
         {
-            return appointmentStation.getCode();
-        }
-        public DateTime getCheckInTime()
-        {
-            return appointmentCheckin;
-        }
-        public int checkin(StationCode stationCode, DateTime checkin, double duration)
-        {
-            if (durationValid(checkin, duration))
+            if (durationValid(this.CheckInTime, duration))
             {
 
-                int confCode = processSale(hoursInStation.ToArray<ItemType>());
+                double hours = requestTimeFrame(this.CheckInTime, duration);
+                int confCode = ProcessTransaction(createHoursArray(hours),TransactionType.SALE);
+                this.appointmentStation = station;
+
                 appointmentStation.open_door();
 
                 return confCode;
@@ -63,73 +75,128 @@ namespace BarkNPark
             return (int)ErrorCode.DUR_INV;
         }
 
-        public int checkout()
+        public int Checkout()
         {
-            return appointmentStation.check_out();
+            int confCode = -1;
+            double minutesUnused = Math.Floor((DateTime.Now - this.ScheduledCheckOutTime).TotalHours);
+            if (minutesUnused < 0)
+            {
+               confCode = ProcessTransaction(createHoursArray(minutesUnused *-1), TransactionType.REFUND);
+            }
+            else if(minutesUnused > 10) // 10 minute grace period before additional charges
+            {
+                confCode = ProcessTransaction(createHoursArray(minutesUnused), TransactionType.SALE);
+
+            }
+            actualAppointmentCheckout = DateTime.Now;
+            appointmentStation.check_out();
+            return confCode;
         }
 
-        public int dispenseItem(ItemType[] items)
+        public int DispenseItem(ItemType[] items)
         {
-            int confCode = processSale(items);
-            this.appointmentStation.dispenseItem(items);
+            int confCode = ProcessTransaction(items, TransactionType.SALE);
+            this.appointmentStation.DispenseItem(items);
             return (int)ErrorCode.SUCCESS;
         }
 
-        public int processSale(ItemType[] items)
+        public int ExtendTime(double duration)
         {
-            Sale newSale = new Sale(items);
-            ISale sale = (ISale)newSale;
-            int confCode = sale.processPayment("email");
+            DateTime temp = scheduledAppointmentCheckout;
+            int confCode = -1;
+            if (durationValid(this.CheckInTime, duration))
+            {
+                double hours = requestTimeFrame(this.CheckInTime, duration);
+                confCode = ProcessTransaction(createHoursArray(hours), TransactionType.SALE);
+                ScheduledCheckOutTime = ScheduledCheckOutTime.AddMinutes(duration);
+            }
+
+            return confCode;
+
+
+        }
+
+        public int ProcessTransaction(ItemType[] items, TransactionType type)
+        {
+            Sale transaction = null;
+           
+            switch (type) {
+                case TransactionType.SALE:
+                    transaction = new Sale(items);
+                  
+                    break;
+                case TransactionType.REFUND:
+                    transaction = new Refund(items);
+                   
+                    break;
+
+            }
+                        
+            
+            int confCode = transaction.ProcessPayment("email");
 
             Console.WriteLine();
-            Console.Write(sale.ToString());
+            Console.Write(transaction.ToString());
             Console.WriteLine();
+            ISale sale = transaction;
             appointmentSales.Add(sale);
 
             return confCode;
         }
-        public int extendTime(double duration)
+
+      
+
+        public ItemType[] createHoursArray(double numberofHours)
         {
-            DateTime temp = appointmentCheckout;
-            int confCode = -1;
-            if (durationValid(this.getCheckInTime(), duration))
+            int roundedHours = (int)Math.Ceiling(numberofHours);
+            ItemType[] appoint_hours = new ItemType[roundedHours];
+            for (int i = 0; i < appoint_hours.Length; i++)
             {
-                confCode = processSale(hoursInStation.ToArray<ItemType>());
-                appointmentCheckout = appointmentCheckout.AddMinutes(duration);
+                appoint_hours[i] = ItemType.HOUR;
             }
+            return appoint_hours;
+        }
 
-            return confCode;
-
-
+        public double requestTimeFrame(DateTime checkinTime, double duration)
+        {
+            DateTime proposedCheckOut = checkinTime.AddMinutes(duration);
+            TimeSpan minutesInStation = proposedCheckOut - checkinTime;
+            return minutesInStation.TotalHours;
         }
 
         public bool durationValid(DateTime checkInTime, double duration)
         {
-            DateTime proposedCheckOut = checkInTime.AddMinutes(duration);
-            TimeSpan minutesInStation = proposedCheckOut - checkInTime;
-            if(minutesInStation.TotalHours >= 4)
+            
+            if(requestTimeFrame(checkInTime,duration) >= 4)
             {
                 return false;
             }
-            hoursInStation.Clear();
-            for(int i = 0; i < minutesInStation.TotalHours; i++)
-            {
-                hoursInStation.Add(ItemType.HOUR);
-            }
+           
             return true;
         }
 
+        public string PrintSales()
+        {
+            string s = "Sales for " + this.appointmentName + ": \n";
 
+            foreach(ISale sale in appointmentSales)
+            {
+                s += sale.ToString() + "\n";
+            }
+            return s;
+        }
         override public string ToString()
         {
-            if (appointmentStation != null)
+            if (this.appointmentStation != null)
             {
-                return "This appointment station is : " + appointmentStation.ToString();
+                return "This appointment station is : " + this.appointmentStation.ToString() + " \n Check In Occured At : " + this.CheckInTime.ToString() + " \n Check Out Scheduled For : " + this.ScheduledCheckOutTime.ToString() + "\n";
             }
-            else
+            else if(this.ActualCheckoutTime < DateTime.Now)
             {
-                return "This appointment does not have an associated staion yet.";
+                return "This appointment station is : " + this.appointmentStation.ToString() + " \n Check In Occured At : " + this.CheckInTime.ToString() + "\n Check out Occured at : " + this.ActualCheckoutTime.ToString() + "\n";
             }
+
+            return "";
         }
     }
 }

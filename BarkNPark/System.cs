@@ -23,18 +23,19 @@ namespace BarkNPark
     {
         List<IStation> stations = new List<IStation>() { new Station(StationCode.STATION_0), new Station(StationCode.STATION_1), new Station(StationCode.STATIOn_2) };
         List<IAppointment> appointments = new List<IAppointment>() { };
-        //Create User Profile
-        bool createProile() { return true; }
+
+        
         public List<IStation> listStations() { return stations; }
 
-        public int CheckIn(StationCode code, string name, double duration)
+        public int CheckIn( string name, double duration)
         {
+
             IStation availStation = getFirstAvailableStation();
             if (availStation != null)
             {
                 DateTime checkinTime = DateTime.Now;
                 Appointment newappt = new Appointment(this, name, checkinTime,checkinTime.AddMinutes(duration));
-                int confCode = newappt.checkin(code,checkinTime,duration);
+                int confCode = newappt.Checkin(availStation,duration);
                 if ( confCode != (int)ErrorCode.SUCCESS)
                 {
                     return confCode;
@@ -51,44 +52,36 @@ namespace BarkNPark
             
         }
 
-        public int Checkout(StationCode code, string name)
+        public int Checkout(string name)
         {
             IAppointment relappt = getAppointmentByName(name);
 
-
-            if (relappt.getStationCode() == code)
-            {
-                return relappt.checkout();
-            }
-            IStation brokenStation = this.GetStation(code);
-
-            return (int)ErrorCode.OUT_FAIL;
+           
+           return relappt.Checkout();
+           
 
         }
 
-        public int requestextension(StationCode code, string name, double timeToAdd)
+        public int requestextension(string name, double timeToAdd)
         {
             IAppointment relappt = getAppointmentByName(name);
-
-            
-            if (relappt.getStationCode() == code)
-            {
-                return relappt.extendTime(timeToAdd);
-            }
-            return (int)ErrorCode.EXT_FAIL;
-
+   
+                       
+           return relappt.ExtendTime(timeToAdd);
+        
         }
 
-        public int addItem(StationCode code, string name,ItemType [] items)
+        public int addItem(string name,ItemType [] items)
         {
             IAppointment relappt = getAppointmentByName(name);
-
-
-            if (relappt.getStationCode() == code)
+            if (relappt != null)
             {
-                return relappt.dispenseItem(items);
+                
+                return relappt.DispenseItem(items);
             }
+
             return (int)ErrorCode.DIS_FAIL;
+            
         }
 
         public IStation getFirstAvailableStation()
@@ -104,7 +97,7 @@ namespace BarkNPark
         {
             foreach (IAppointment appt in appointments)
             {
-                if (appt.getName() == name) return appt;
+                if (appt.Name == name) return appt;
             }
 
             return null;
@@ -129,27 +122,21 @@ namespace BarkNPark
 
         public override string ToString()
         {
-            Console.WriteLine("System Appointments: ");
+            string s = "System Appointments: \n";
             foreach (IAppointment appt in this.appointments)
             {
-                Console.WriteLine(appt.ToString());
+                s += appt.ToString() + "\n";
+                s += appt.PrintSales() + "\n";
+                
+                
             }
-
-            return "End Of System Stations";
+            s += "End Of System Appointments \n";
+            return s;
         }
-    }
-
     
 
+        
 
-
-    public class Program
-    {
-
-        public static void Main(string[] args)
-        {
-            
-
-        }
+      
     }
 }

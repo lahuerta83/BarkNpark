@@ -16,9 +16,9 @@ namespace BarkNPark
         bool isAvailable();
         int open_door();
         int check_out();
-        int dispenseItem(ItemType[] items);
+        int DispenseItem(ItemType[] items);
         int changeStatus(bool broken, bool inMain);
-        StationCode getCode();
+        StationCode stationCode { get; }
 
     }
 
@@ -39,10 +39,9 @@ namespace BarkNPark
         {
             return !(Broken | Maintenance | Occupied);
         }
-        public StationCode getCode()
-        {
-            return this.station_code;
-        }
+
+        public StationCode stationCode { get { return this.station_code; } } 
+        
 
         public int open_door()
         {
@@ -60,7 +59,7 @@ namespace BarkNPark
             return (int)ErrorCode.SUCCESS;
         }
 
-        public int dispenseItem(ItemType[] items)
+        public int DispenseItem(ItemType[] items)
         {
             Console.WriteLine("Dispensing....");
             for(int i = 0; i < items.Length; i++)
@@ -88,7 +87,7 @@ namespace BarkNPark
         }
         public override string ToString()
         {
-            return station_code.ToString() + " Check-IN status: " + Occupied;
+            return station_code.ToString() + " Check-In status: " + Occupied;
         }
 
     }

@@ -19,49 +19,50 @@ namespace BarkNPark
 
     interface ISale {
 
-        int processPayment(string payPalEmail);
+        int ProcessPayment(string payPalEmail);
 
     }
 
-    class Sale
+    class Sale : ISale
     {
         ItemType[] saleItems;
         List<ItemType> paidItems = new List<ItemType>();
-        private Dictionary<ItemType, double> priceList = new Dictionary<ItemType, double>() {
+        protected Dictionary<ItemType, double> priceList = new Dictionary<ItemType, double>() {
             { ItemType.DOG_TREAT, 1.99 },
             { ItemType.TOY,4.99 },
             { ItemType.WATER, 2.99},
             {ItemType.HOUR, 10.00 }
         };
-        string receipt;
-        private int SALE_NUM = 0;
-        private double SALE_TOTAL = 0;
-        private double FINAL_TOTAL = 0;
+
+        protected string receipt;
+        private int SALE_NUM = 1;
+        protected double SALE_TOTAL = 0;
+        protected double FINAL_TOTAL = 0;
+
         public Sale(ItemType[] items)
         {
             saleItems = items;
         }
 
-        private int getSaleNumber()
-        {
-            return SALE_NUM++;
-        }
+        private int SaleNumber { get { return SALE_NUM++; } }
+        
         private double addToTotal(double amount)
         {
             return SALE_TOTAL += amount;
         }
-        private double calculateTaxAmount(double taxRate)
+        protected double calculateTaxAmount(double taxRate)
         {
             return SALE_TOTAL * taxRate;
         }
 
-        private double calculateFinalTotal(double taxRate)
+        protected double calculateFinalTotal(double taxRate)
         {
             FINAL_TOTAL = SALE_TOTAL + calculateTaxAmount(taxRate);
-            return FINAL_TOTAL;
+            
+            return Double.Parse(String.Format("{0:00.##}",FINAL_TOTAL));
         }
 
-        public int processPayment(string payPalEmail)
+        public int ProcessPayment(string payPalEmail)
         {
             double currentSaleTotal = SALE_TOTAL;
             foreach(ItemType item in saleItems)
@@ -82,22 +83,23 @@ namespace BarkNPark
 
         public override string ToString()
         {
-            receipt += String.Format("Your Receipt For Sale %d", this.getSaleNumber()) + "\n";
+            receipt = "";
+            receipt += String.Format("Your Receipt For Sale {0}", this.SaleNumber + "\n");
             foreach (ItemType item in saleItems)
             {
                 double price = 0;
                 switch (item) {
                     case ItemType.DOG_TREAT:
                         price = priceList[ItemType.DOG_TREAT];
-                        receipt += String.Format("Dog Treat: %d", price) + "\n";
+                        receipt += String.Format("Dog Treat: {0}", price) + "\n";
                         break;
                     case ItemType.TOY:
                         price = priceList[ItemType.TOY];
-                        receipt += String.Format("Dog Toy: %d", price) + "\n";
+                        receipt += String.Format("Dog Toy: {0}", price) + "\n";
                         break;
                     case ItemType.WATER:
                         price = priceList[ItemType.WATER];
-                        receipt += String.Format("Water : %d", price) + "\n";
+                        receipt += String.Format("Water : {0}", price) + "\n";
                         break;
                     default:
                         
@@ -108,8 +110,8 @@ namespace BarkNPark
 
             }
 
-            receipt += String.Format("Tax : %d", calculateTaxAmount(.10)) + "\n";
-            receipt += String.Format("Total Cost : %d", calculateFinalTotal(.10)) + "\n";
+            receipt += String.Format("Tax : {0}", calculateTaxAmount(.10)) + "\n";
+            receipt += String.Format("Total Cost : {0}", calculateFinalTotal(.10)) + "\n";
 
             return receipt;
         }
