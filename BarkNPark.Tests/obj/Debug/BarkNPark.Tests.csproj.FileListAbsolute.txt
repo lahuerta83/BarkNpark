@@ -1,0 +1,13 @@
+C:\Users\leighann.huerta\Desktop\barnkpark-app-master\BarkNPark.Tests\bin\Debug\BarkNPark.Tests.dll
+C:\Users\leighann.huerta\Desktop\barnkpark-app-master\BarkNPark.Tests\bin\Debug\BarkNPark.Tests.pdb
+C:\Users\leighann.huerta\Desktop\barnkpark-app-master\BarkNPark.Tests\bin\Debug\BarkNPark.exe
+C:\Users\leighann.huerta\Desktop\barnkpark-app-master\BarkNPark.Tests\bin\Debug\Microsoft.Pex.Framework.dll
+C:\Users\leighann.huerta\Desktop\barnkpark-app-master\BarkNPark.Tests\bin\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
+C:\Users\leighann.huerta\Desktop\barnkpark-app-master\BarkNPark.Tests\bin\Debug\Microsoft.ExtendedReflection.Reasoning.dll
+C:\Users\leighann.huerta\Desktop\barnkpark-app-master\BarkNPark.Tests\bin\Debug\Microsoft.ExtendedReflection.dll
+C:\Users\leighann.huerta\Desktop\barnkpark-app-master\BarkNPark.Tests\bin\Debug\BarkNPark.pdb
+C:\Users\leighann.huerta\Desktop\barnkpark-app-master\BarkNPark.Tests\bin\Debug\Microsoft.Pex.Framework.xml
+C:\Users\leighann.huerta\Desktop\barnkpark-app-master\BarkNPark.Tests\bin\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.xml
+C:\Users\leighann.huerta\Desktop\barnkpark-app-master\BarkNPark.Tests\obj\Debug\BarkNPark.Tests.csprojResolveAssemblyReference.cache
+C:\Users\leighann.huerta\Desktop\barnkpark-app-master\BarkNPark.Tests\obj\Debug\BarkNPark.Tests.dll
+C:\Users\leighann.huerta\Desktop\barnkpark-app-master\BarkNPark.Tests\obj\Debug\BarkNPark.Tests.pdb
